@@ -28,6 +28,10 @@ After the Brewsterware model has been installed and built, a new tile will be vi
 
 ![Data management workspace](https://github.com/Brewster35/365DataEntityList/blob/main/workspace.png)
 
-Clicking on the new tile will reveal a new form. The grid in this form will initially be empty. Click on the "Refresh entity list" menu item on the toolbar and confirm that you want to refresh the data in the form. Specify a language from the dropdown on the batch form and click on ok to start the batch process.
+Clicking on the new tile will reveal a new form. The grid in this form will initially be empty. Click on the "Refresh entity list" menu item on the toolbar and confirm that you want to refresh the data in the form. 
+
+![Data management workspace](https://github.com/Brewster35/365DataEntityList/blob/main/workspace.png)
+
+Specify a language from the dropdown on the batch form and click on ok to start the batch process.
 
 When the batch process has finished, the contents of the grid can be downloaded.
