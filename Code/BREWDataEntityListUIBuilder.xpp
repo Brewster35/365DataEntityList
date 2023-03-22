@@ -1,0 +1,16 @@
+internal final class BREWDataEntityListUIBuilder extends SysOperationAutomaticUIBuilder
+{
+    private BREWDataEntityListContract contract;
+    private DialogField dlgFldLanguageId;
+
+    public void postBuild()
+    {
+        super();
+
+        contract = this.dataContractObject();
+
+        dlgFldLanguageId = this.bindInfo().getDialogField(contract, methodStr(BREWDataEntityListContract, parmLanguageId));
+        dlgFldLanguageId.mandatory_RU(true);
+    }
+
+}
