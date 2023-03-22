@@ -1,0 +1,386 @@
+/// <summary>
+/// Class to generate a list of data entities with some of their properties
+/// </summary>
+class BREWDataEntityListService extends SysOperationServiceBase
+{
+    #AOT
+    private Set indexFields;
+    private DictDataEntity dataEntity;
+    private RecordInsertList recordInsertList;
+    private LanguageId languageId;
+    private Map moduleMap;
+    private Set configEntities;
+
+    public static void main(Args _args)
+    {
+        BREWDataEntityListService service;
+
+        service = new BREWDataEntityListService();
+        service.generateRecords(new BREWDataEntityListContract());
+    }
+
+    /// <summary>
+    /// method to create and export a list of data entities
+    /// </summary>
+    public void generateRecords(BREWDataEntityListContract _contract)
+    {
+        RunbaseProgress progress;
+        TreeNode tablesNode;
+        TreeNode tableNode;
+        SysDictTable table;
+        TreeNodeIterator iterator;
+        
+        recordInsertList = new RecordInsertList(tableNum(BREWDataEntityList));
+
+        progress = this.getProgressController(_contract);
+        progress.setTotal(this.countDataEntities());
+
+        languageId = _contract.parmLanguageId();
+        infolog.language(languageId);
+
+        tablesNode = TreeNode::findNode(#TablesPath);
+        iterator = tablesNode.AOTiterator();
+        tableNode = iterator.next();
+
+        this.truncateEntityList();
+        this.populateModuleMap();
+        configEntities = new Set(Types::String);
+
+        while (tableNode)
+        {
+            table = SysDictTable::newName(tableNode.AOTname());
+
+            if (table.isDataEntity())
+            {
+                dataEntity = new DictDataEntity(table.id());
+                progress.incCount();
+
+                this.populateIndexFieldsSet(table.id(), dataEntity.indexNext(0));
+
+                this.populateRecords();
+            }
+
+            tableNode = iterator.next();
+        }
+
+        recordInsertList.insertDatabase();
+
+        this.updateIsConfigField();
+    }
+
+    private void populateModuleMap()
+    {
+        DictEnum dictEnum;
+
+        moduleMap = new Map(Types::String, Types::String);
+        dictEnum = new DictEnum(enumNum(DMFModule));
+
+        for (int i = 0; i < dictEnum.values(); i++)
+        {
+            moduleMap.add(
+                dictEnum.index2Symbol(i), 
+                SysLabel::labelId2String(dictEnum.index2LabelId(i), languageId));
+        }
+    }
+
+    private void populateRecords()
+    {
+        BREWDataEntityList dataEntityList;
+        FieldId fieldId;
+        DictDataEntityField dataEntityField;
+        boolean multiThreadingEnabled;
+        QueryBuildDataSource qbds;
+        TableId tableId;
+        SysDictTable dictTable;
+        SysDictField dictField;
+
+        multiThreadingEnabled = this.isMultiThreadingEnabled();
+
+        fieldId = dataEntity.fieldNext(0);
+
+        while (fieldId)
+        {
+            dataEntityField = new DictDataEntityField(dataEntity.id(), fieldId);
+             
+            try
+            {
+                if (!dataEntityField.isSystem())
+                {
+                    dataEntityList.clear();
+
+                    dataEntityList.EntityName = dataEntity.name();
+
+                    dataEntityList.IsConfig = dataEntity.entityCategory() == EntityCategory::Configuration ? NoYes::Yes : NoYes::No;
+
+                    dataEntityList.Modules = this.getModuleName(dataEntity.modules());
+
+                    dataEntityList.ConfigKeyPath = this.buildConfigKeyPath(dataEntity.configurationKeyId());
+
+                    dataEntityList.CountryRegionCodes = con2Str(dataEntity.getCountryRegionCodes());
+
+                    dataEntityList.EntityLabel = dataEntity.label();
+                    dataEntityList.IsDMEnabled = dataEntity.dataManagementEnabled() ? NoYes::Yes : NoYes::No;
+                    
+                    dataEntityList.SupportsSetBasedSqlOperations = (dataEntity.enableSetBasedSqlOperations() == AutoNo::Auto && dataEntity.supportsSetBasedSqlOperations() == true) ? NoYes::Yes : NoYes::No;
+                    dataEntityList.IsMultithreadingEnabled = multiThreadingEnabled ? NoYes::Yes : NoYes::No;
+                    dataEntityList.IsPublic = dataEntity.isPublic() ? NoYes::Yes : NoYes::No;
+                    dataEntityList.DataManagementStagingTable += dataEntity.dataManagementStagingTable();
+                    dataEntityList.IsReadOnly = dataEntity.isReadOnly() ? NoYes::Yes : NoYes::No;
+                    dataEntityList.PublicCollectionName = dataEntity.publicCollectionName();
+
+                    dataEntityList.EntityFieldName = dataEntityField.name();
+                    dataEntityList.EntityFieldLabel = dataEntityField.label();
+
+                    dataEntityList.IsFieldMandatory = dataEntityField.mandatory() ? NoYes::Yes : NoYes::No;
+
+                    qbds = dataEntity.query().dataSourceName(dataEntityField.dataSource());
+
+                    dataEntityList.DatasourceName = dataEntityField.dataSource();
+
+                    if (dataEntityField.dataSource() != null &&
+                        qbds)
+                    {
+                        tableId = qbds.table();
+                    }
+                    else
+                    {
+                        tableId = tableName2Id(dataEntityList.DatasourceName);
+                    }
+
+                    dictTable = new SysDictTable(tableId);
+
+                    if (dictTable)
+                    {
+                        dataEntityList.TableName = tableId2Name(tableId);
+                        dataEntityList.TableLabel = dictTable.label();
+
+                        if (dictTable.tableGroup() == TableGroup::Parameter)
+                        {
+                            configEntities.add(dataEntityList.EntityName);
+                        }
+                        
+                        dictField = new SysDictField(tableId, fieldName2Id(tableId, dataEntityField.dataField()));
+
+                        if (dictField)
+                        {
+                            dataEntityList.TableFieldLabel = dictField.label();
+                            dataEntityList.FieldTypeName = this.typeDescription(dictField.baseType());
+                        }
+                    }
+
+                    dataEntityList.StringLen = dataEntityField.stringLen();
+                    dataEntityList.FieldTypeName = this.typeDescription(dataEntityField.baseType());
+                                            
+                    dataEntityList.TableField = dataEntityField.dataField();
+                    dataEntityList.IsComputedField = dataEntityField.IsComputedField() ? NoYes::Yes : NoYes::No;
+                    dataEntityList.FieldAccessModifier = dataEntityField.accessModifier();
+                    dataEntityList.IsInPrimaryIndex = (indexFields.in(dataEntityField.name())) ? NoYes::Yes : NoYes::No;
+
+                    recordInsertList.add(dataEntityList);
+                }
+            }
+            catch (Exception::CLRError)
+            {
+                Debug::assert(false);
+            }
+
+            fieldId = dataEntity.fieldNext(fieldId);
+        }
+    }
+
+    private int countDataEntities()
+    {
+        TreeNode tablesNode;
+        TreeNode tableNode;
+        SysDictTable table;
+        TreeNodeIterator iterator;
+        int entityCount;
+        
+        tablesNode = TreeNode::findNode(#TablesPath);
+        iterator = tablesNode.AOTiterator();
+        tableNode = iterator.next();
+
+        this.truncateEntityList();
+
+        while (tableNode)
+        {
+            table = SysDictTable::newName(tableNode.AOTname());
+
+            if (table.isDataEntity())
+            {
+                entityCount++;
+            }
+
+            tableNode = iterator.next();
+        }
+
+        return entityCount;
+    }
+
+    private void populateIndexFieldsSet(TableId _tableId, IndexId _indexId)
+    {
+        SysDictIndex dictIndex;
+
+        indexFields = new Set(Types::String);
+
+        dictIndex = new SysDictIndex(_tableId, _indexId);
+
+        if (dictIndex &&
+            dictIndex.name() == 'EntityKey')
+        {
+            for (int fieldIdx  = 1; fieldIdx <= dictIndex.numberOfFields(); fieldIdx++)
+            {
+                indexFields.add(dataEntity.fieldName(dictIndex.field(fieldIdx)));
+            }
+        }
+    }
+
+    private void updateIsConfigField()
+    {
+        const int expressionLimit = 100;
+        BREWDataEntityList dataEntityList;
+        SysDaUpdateObject update;
+        SysDaUpdateStatement statement;
+        SysDaQueryExpression expression;
+        SetIterator iterator;
+        int counter;
+
+        if (!configEntities.elements())
+        {
+            return;
+        }
+
+        statement = new SysDaUpdateStatement();
+   
+        iterator = new SetIterator(configEntities);
+        counter = expressionLimit;
+
+        while (iterator.more())
+        {
+            if (!expression)
+            {
+                expression = new SysDaEqualsExpression(
+                    new SysDaFieldExpression(dataEntityList, fieldStr(BREWDataEntityList, EntityName)),
+                    new SysDaValueExpression(iterator.value()));
+            }
+            else
+            {
+                expression = expression.or(new SysDaEqualsExpression(
+                    new SysDaFieldExpression(dataEntityList, fieldStr(BREWDataEntityList, EntityName)),
+                    new SysDaValueExpression(iterator.value())));
+            }
+
+            counter -= 1;
+
+            if (counter <= 0)
+            {
+                update = new SysDaUpdateObject(dataEntityList);
+
+                update.whereClause(expression);
+                update.settingClause()
+                    .add(fieldStr(BREWDataEntityList, IsConfig), 
+                        new SysDaValueExpression(NoYes::Yes));
+
+                statement.update(update);
+
+                expression = null;
+                counter = expressionLimit;
+            }
+
+            iterator.next();
+        }
+    
+        if (expression)
+        {
+            update = new SysDaUpdateObject(dataEntityList);
+
+            update.whereClause(expression);
+            update.settingClause()
+                .add(fieldStr(BREWDataEntityList, IsConfig), 
+                    new SysDaValueExpression(NoYes::Yes));
+
+            statement.update(update);
+        }
+    }
+
+    private boolean isMultiThreadingEnabled()
+    {
+        DictTable stagingTable;
+        boolean isEnabled;
+
+        if (dataEntity.dataManagementEnabled())
+        {
+            isEnabled = true;
+            stagingTable = new DictTable(tablename2id(dataEntity.dataManagementStagingTable()));
+
+            if (stagingTable &&
+                tableHasStaticMethod(stagingTable, identifierstr(orderByFieldListForImportExport)))
+            {
+                isEnabled = conLen(stagingTable.callStatic(identifierstr(orderByFieldListForImportExport))) == 0;
+            }
+        }
+        else
+        {
+            isEnabled = false;
+        }
+
+        return isEnabled;
+    }
+
+    private void truncateEntityList()
+    {
+        SqlDataDictionary dictionary;
+
+        dictionary = new SqlDataDictionary();
+        dictionary.tableTruncate(tableNum(BREWDataEntityList), false);
+    }
+
+    private str typeDescription(Types _types)
+    {
+        switch (_types)
+        {
+            case Types::VarString:
+                return 'Memo';
+
+            case Types::BLOB:
+            case Types::Container:
+                return 'Binary';
+        }
+
+        return enum2Str(_types);
+    }
+
+    private str buildConfigKeyPath(ConfigurationKeyId _configKeyId)
+    {
+        DictConfigurationKey dictConfigKey;
+        str path;
+
+        path = '';
+        dictConfigKey = new DictConfigurationKey(_configKeyId);
+    
+        while (dictConfigKey)
+        {
+            path = dictConfigKey.label() + path;
+
+            dictConfigKey = new DictConfigurationKey(dictConfigKey.parentConfigurationKeyId());
+
+            if (dictConfigKey)
+            {
+                path = ' -> ' + path;
+            }
+        }
+    
+        return path;
+    }
+
+    private str getModuleName(str _module)
+    {
+        if (moduleMap.exists(_module))
+        {
+            return moduleMap.lookup(_module);
+        }
+
+        return _module;
+    }
+
+}
