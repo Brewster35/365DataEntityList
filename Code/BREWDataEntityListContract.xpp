@@ -1,0 +1,30 @@
+[
+    DataContract,
+    SysOperationContractProcessing(classStr(BREWDataEntityListUIBuilder))
+]
+class BREWDataEntityListContract extends SysOperationDataContractBase implements SysOperationValidatable
+{
+    private LanguageId languageId;
+
+    [DataMember]
+    public LanguageId parmLanguageId(LanguageId _languageId = languageId)
+    {
+        languageId = _languageId;
+        return languageId;
+    }
+
+    public boolean validate()
+    {
+        boolean isValid;
+ 
+        isValid = true;
+
+        if (!this.parmLanguageId())
+        {
+            isValid = checkFailed("@SYS98617");
+        }
+ 
+        return isValid;
+    }
+
+}
