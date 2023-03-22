@@ -1,0 +1,42 @@
+class BREWDataEntityListController extends SysOperationServiceController
+{
+    private static ClassDescription description()
+    {
+        return "@SYS113222";
+    }
+
+    protected void new(IdentifierName _className = '', IdentifierName _methodName = '', SysOperationExecutionMode _executionMode = SysOperationExecutionMode::Asynchronous)
+    {
+        IdentifierName parmClassName = _className != '' ? _className : classStr(BREWDataEntityListService);
+        IdentifierName parmMethodName = _methodName != '' ? _methodName : methodStr(BREWDataEntityListService, generateRecords);
+ 
+        super(parmClassName, parmMethodName, _executionMode);
+ 
+        this.parmDialogCaption(BREWDataEntityListController::description());
+    }
+
+    public static BREWDataEntityListController newFromArgs(Args _args)
+    {
+        BREWDataEntityListController controller;
+ 
+        controller = new BREWDataEntityListController();
+     
+        controller.initializeFromArgs(_args);
+ 
+        return controller;
+    }
+
+    public static void main(Args _args)
+    {
+        BREWDataEntityListController controller;
+
+        controller = BREWDataEntityListController::newFromArgs(_args);
+        controller.startOperation();
+    }
+
+    public boolean mustGoBatch()
+    {
+        return true;
+    }
+
+}
