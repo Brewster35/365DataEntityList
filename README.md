@@ -37,3 +37,5 @@ Specify a language from the dropdown on the batch form and click on ok to start 
 ![Data management workspace](https://github.com/Brewster35/365DataEntityList/blob/main/batch.png)
 
 When the batch process has finished, the contents of the grid can be downloaded.
+
+![Data management workspace](https://github.com/Brewster35/365DataEntityList/blob/main/export.png)
