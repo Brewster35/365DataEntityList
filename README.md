@@ -43,10 +43,15 @@ When the batch process has finished, the contents of the grid can be downloaded.
 |Field name|Description|
 | ----------- | ----------- |
 |AOT Name|This is the name of the data entity as shown in the AOT. It is also the name of the view that is created in SQL server.|
-|Entity label|This is the name of the data entity as shown in the data management workspace.|
+|Entity name|This is the name of the data entity as shown in the data management workspace.|
+|Modules|Shows the module that the data entity is related to|
+|Configuration key|If a configuration key is needed to enable the entity, this will show the path|
+|Country/region applicability|Countries the data entitiy is enabled for|
 |Data management enabled|This shows whether the entity is enabled for use with data management.|
 |Multithreading enabled|This shows whether it is possible to use multithreading with the entity as setup in entity execution import parameters. This can be found on the entity settings tab of the Data import/export framework parameters.|
+|Supports set based operations||
 |ODATA enabled|This shows whether the entity can be accessed using ODATA.|
+|Is config related|If this is set to "Yes", then the entity is used for "parameter" based tables|
 |Staging table|This is the name of the staging table which is used with data management.|
 |Read only|This shows whether the data entity is read only.|
 |Entity collection name|This shows the name of the data entity when accessed using ODATA.|
@@ -63,8 +68,3 @@ When the batch process has finished, the contents of the grid can be downloaded.
 |Is field in primary key|This shows whether the field forms part of the primary key for the entity.|
 |String length|This shows the number characters that can be stored in the field if the field is of type String.|
 |Data type|This is the type of data that is stored in the field.|
-|||
-|||
-
-
-
