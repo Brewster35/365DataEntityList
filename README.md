@@ -6,6 +6,8 @@ This software generates a handy list of 365 Finance and Operations data entity m
 
 It works by populating a table with the metadata in a batch job which can then be downloaded as an Excel file.
 
+This software is supplied for free "as is" and no warranty is given or implied. It has only been tested on environments where there is no ISV code - I would hope that any data entities supplied in ISV models would be picked up by this software.
+
 > **Installation**
 
 Create a new folder called "models" on the C drive and copy the model file into it.
@@ -39,6 +41,8 @@ Specify a language from the dropdown on the batch form and click on ok to start 
 When the batch process has finished, the contents of the grid can be downloaded.
 
 ![Data management workspace](https://github.com/Brewster35/365DataEntityList/blob/main/images/export.png)
+
+> **Explanation of fields**
 
 |Field name|Description|
 | ----------- | ----------- |
