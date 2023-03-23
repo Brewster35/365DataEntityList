@@ -39,3 +39,70 @@ Specify a language from the dropdown on the batch form and click on ok to start 
 When the batch process has finished, the contents of the grid can be downloaded.
 
 ![Data management workspace](https://github.com/Brewster35/365DataEntityList/blob/main/images/export.png)
+
+|Field name|Description|
+| ----------- | ----------- |
+|AOT Name|This is the name of the data entity as shown in the AOT. It is also the name of the view that is created in SQL server.|
+
+AOT Name
+This is the name of the data entity as shown in the AOT. It is also the name of the view that is created in SQL server.
+
+Entity label
+This is the name of the data entity as shown in the data management workspace.
+
+Data management enabled
+This shows whether the entity is enabled for use with data management.
+
+Multithreading enabled
+This shows whether it is possible to use multithreading with the entity as setup in entity execution import parameters. This can be found on the entity settings tab of the Data import/export framework parameters.
+
+ODATA enabled
+This shows whether the entity can be accessed using ODATA.
+
+Staging table
+This is the name of the staging table which is used with data management.
+
+Read only
+This shows whether the data entity is read only.
+
+Entity collection name
+This shows the name of the data entity when accessed using ODATA.
+
+Entity field
+This is the name of the field that is exposed on the data entity.
+
+Entity field label
+This is the label used for the field on the data entity.
+
+Is mandatory
+This shows whether the field is mandatory when creating a new record.
+
+Datasource name
+This is the unique name of the data source in the data entity. A lot of the time this is the same name as the underlying table.
+
+Table name
+This is the name of the table for the data source.
+
+Table label
+This is a more descriptive name for the table.
+
+Field name
+This is the name of the field on the table which is mapped to the entity field.
+
+Field label
+This is a more descriptive name for the field.
+
+Is computed field
+This shows whether the data for the entity field is generated using business logic instead of being mapped directly to a field on a table.
+
+Data access modifier
+This shows whether the entity field is accessible through ODATA or data management. Values can be public, private or Internal.
+
+Is field in primary key
+This shows whether the field forms part of the primary key for the entity.
+
+String length
+This shows the number characters that can be stored in the field if the field is of type String.
+
+Data type
+This is the type of data that is stored in the field.
