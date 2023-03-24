@@ -8,6 +8,10 @@ It works by populating a table with the metadata in a batch job which can then b
 
 This software is supplied for free "as is" and no warranty is given or implied. It has only been tested on environments where there is no ISV code - I would hope that any data entities supplied in ISV models would be picked up by this software.
 
+I have added the code in the "Code" folder as reference so that you can see how the data is built if you are interested. This is included in the model and does not have to be installed separately.
+
+If you find this software useful or have suggestions to improve it I would love to hear from you.
+
 > **Installation**
 
 Create a new folder called "models" on the C drive and copy the model file into it.
